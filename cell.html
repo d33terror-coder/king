@@ -1,0 +1,82 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Cell — CheAI Arena</title>
+  <style>
+    :root{--bg:#0f0f11;--panel:#17181b;--muted:#8a8b8f}
+    body{margin:0;height:100vh;background:linear-gradient(180deg,var(--bg),#0b0b0c);color:#e6e6e6;font-family:Segoe UI,Roboto,Arial}
+    .wrap{max-width:1000px;margin:40px auto;padding:20px}
+    .panel{background:var(--panel);padding:12px;border-radius:8px}
+    h1{margin:0 0 12px}
+    .tabs{display:flex;gap:8px;margin-bottom:12px}
+    .tab{padding:8px 10px;background:#0b0b0d;border-radius:6px;cursor:pointer}
+    .grid{display:grid;grid-template-columns:2fr 1fr;gap:12px}
+    .gear-list{display:grid;grid-template-columns:repeat(5,1fr);gap:8px}
+    .button{background:#222428;color:#d6d6d6;padding:6px 8px;border-radius:6px;border:1px solid rgba(255,255,255,.03);cursor:pointer}
+    .small{font-size:13px;color:var(--muted)}
+    #playBtn{background:#3a2b2b;color:#fff;padding:10px 14px;border-radius:8px;border:none}
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <div style="display:flex;justify-content:space-between;align-items:center">
+      <h1>Cell — Armory & Hub</h1>
+      <div style="display:flex;gap:8px;align-items:center">
+        <div class="small">Player: <strong id="playerNameCell">Player</strong> Lv <span id="playerLevelCell">1</span></div>
+        <a href="index.html"><button id="playBtn">Enter Arena</button></a>
+      </div>
+    </div>
+
+    <div class="tabs">
+      <div class="tab">Cell</div>
+      <div class="tab">Clan</div>
+      <div class="tab">Market Place</div>
+      <div class="tab">Shop</div>
+      <div class="tab">Training & Exchange</div>
+      <div class="tab">Tar Count (FAQs)</div>
+      <div class="tab">Records</div>
+    </div>
+
+    <div class="grid">
+      <div class="panel">
+        <div style="display:flex;justify-content:space-between;align-items:center">
+          <div>
+            <div class="small">Your Gear</div>
+            <div class="gear-list" id="gearListCell"></div>
+          </div>
+          <div style="width:260px">
+            <div class="small">Actions</div>
+            <div style="display:flex;flex-direction:column;gap:8px;margin-top:8px">
+              <button id="saveBtn" class="button">Auto Save</button>
+              <button id="exportBtn" class="button">Export Save</button>
+              <input id="importFile" type="file" />
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="panel">
+        <div class="small">Session</div>
+        <div style="margin-top:8px">
+          <div>Session Time: <span id="sessTime">0</span>s</div>
+          <div>Session XP: <span id="sessXP">0</span></div>
+        </div>
+      </div>
+    </div>
+
+    <div style="margin-top:16px;text-align:right"><a href="index.html"><button class="button">Back to Arena</button></a></div>
+  </div>
+
+  <script>
+    // basic hooks to localStorage save file
+    document.getElementById('saveBtn').addEventListener('click',()=>{const s=localStorage.getItem('cheai_save');if(!s){alert('No session to save yet.');return;}localStorage.setItem('cheai_save_auto',s);alert('Saved to localStorage (auto)')});
+    document.getElementById('exportBtn').addEventListener('click',()=>{const data=localStorage.getItem('cheai_save')||'{}';const blob=new Blob([data],{type:'application/json'});const url=URL.createObjectURL(blob);const a=document.createElement('a');a.href=url;a.download='cheai_save.json';document.body.appendChild(a);a.click();a.remove();URL.revokeObjectURL(url)});
+    document.getElementById('importFile').addEventListener('change',e=>{const f=e.target.files[0];if(!f) return;const r=new FileReader();r.onload=ev=>{localStorage.setItem('cheai_save',ev.target.result);alert('Imported save. Click Enter Arena to load.')} ;r.readAsText(f)});
+
+    // read some saved values for UI
+    const s=localStorage.getItem('cheai_save');if(s){try{const j=JSON.parse(s);if(j.player){document.getElementById('playerNameCell').innerText=j.player.name||'Player';document.getElementById('playerLevelCell').innerText=j.player.level||1;document.getElementById('sessTime').innerText=(j.session&&j.session.seconds)?Math.floor(j.session.seconds):0;document.getElementById('sessXP').innerText=(j.session&&j.session.xp)?j.session.xp:0}}catch(e){}}
+  </script>
+</body>
+</html>
